@@ -1,0 +1,95 @@
+#!/usr/bin/env bash
+set -e
+
+STAGED_FILES=$(git diff --cached --name-only --diff-filter=ACM)
+
+if [ -z "$STAGED_FILES" ]; then
+    exit 0
+fi
+
+BLOCKED=0
+BLOCK_REASONS=()
+
+# --- 1. Prettier check on frontend files ---
+PRETTIER_FILES=$(echo "$STAGED_FILES" | grep -E '\.(ts|tsx|css|json)$' || true)
+if [ -n "$PRETTIER_FILES" ]; then
+    echo "Checking Prettier formatting on staged files..."
+    PRETTIER_FAIL=()
+    while IFS= read -r file; do
+        if [ -f "$file" ]; then
+            if ! npx prettier --check "$file" 2>/dev/null; then
+                PRETTIER_FAIL+=("$file")
+            fi
+        fi
+    done <<< "$PRETTIER_FILES"
+
+    if [ ${#PRETTIER_FAIL[@]} -gt 0 ]; then
+        echo ""
+        echo "COMMIT BLOCKED: Prettier formatting issues found in:"
+        for f in "${PRETTIER_FAIL[@]}"; do
+            echo "  - $f"
+        done
+        echo ""
+        echo "Fix: Run 'npx prettier --write <file>' on each file, then re-stage."
+        BLOCKED=1
+        BLOCK_REASONS+=("Prettier formatting")
+    fi
+fi
+
+# --- 2. Ruff lint check on Python files ---
+PYTHON_FILES=$(echo "$STAGED_FILES" | grep -E '\.py$' || true)
+if [ -n "$PYTHON_FILES" ]; then
+    echo "Checking ruff lint on staged Python files..."
+    RUFF_FAIL=()
+    while IFS= read -r file; do
+        if [ -f "$file" ]; then
+            if ! python -m ruff check "$file" 2>/dev/null; then
+                RUFF_FAIL+=("$file")
+            fi
+        fi
+    done <<< "$PYTHON_FILES"
+
+    if [ ${#RUFF_FAIL[@]} -gt 0 ]; then
+        echo ""
+        echo "COMMIT BLOCKED: ruff lint errors found in:"
+        for f in "${RUFF_FAIL[@]}"; do
+            echo "  - $f"
+        done
+        echo ""
+        echo "Fix: Run 'ruff check --fix <file>' on each file, then re-stage."
+        BLOCKED=1
+        BLOCK_REASONS+=("ruff lint errors")
+    fi
+fi
+
+# --- 3. Secrets scan on staged diff (added lines only) ---
+echo "Scanning staged diff for secrets..."
+ADDED_LINES=$(git diff --cached | grep '^+' | grep -v '^+++' || true)
+
+# Match actual secret values, not variable names or regex patterns
+# Look for: assignment of secret-like values (key=value, key: value, Bearer tokens, API keys)
+SECRETS_FOUND=$(echo "$ADDED_LINES" | grep -E '(sk-[a-zA-Z0-9]{20,}|ghp_[a-zA-Z0-9]{36}|Bearer [a-zA-Z0-9_./-]{20,})' | grep -v "SECRET_PATTERN" | grep -v '# ' | grep -v 'grep' || true)
+
+if [ -n "$SECRETS_FOUND" ]; then
+    echo ""
+    echo "COMMIT BLOCKED: Potential secrets detected in staged diff:"
+    echo "$SECRETS_FOUND" | head -20
+    echo ""
+    echo "Fix: Remove secrets from your code. Use environment variables or a secrets manager."
+    echo "     If this is a false positive, review the matched lines above carefully."
+    BLOCKED=1
+    BLOCK_REASONS+=("secrets detected")
+fi
+
+# --- Final result ---
+if [ "$BLOCKED" -eq 1 ]; then
+    echo ""
+    echo "============================================"
+    echo "COMMIT BLOCKED due to: $(IFS=', '; echo "${BLOCK_REASONS[*]}")"
+    echo "Address all issues above and re-stage files before committing."
+    echo "============================================"
+    exit 1
+fi
+
+echo "All pre-commit checks passed."
+exit 0

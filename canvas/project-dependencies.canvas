@@ -1,0 +1,11 @@
+{
+  "nodes": [
+    {"id": "appendix-k", "type": "text", "text": "Appendix K", "x": 0, "y": 0, "width": 250, "height": 80},
+    {"id": "qaqc-framework", "type": "text", "text": "QAQC Framework", "x": 400, "y": 0, "width": 250, "height": 80},
+    {"id": "shared-infra", "type": "text", "text": "Hooks, Modules, Workflow-Protocol, Memory", "x": 150, "y": 200, "width": 350, "height": 100}
+  ],
+  "edges": [
+    {"id": "e-appendixk-infra", "fromNode": "appendix-k", "toNode": "shared-infra", "label": "depends on"},
+    {"id": "e-qaqc-infra", "fromNode": "qaqc-framework", "toNode": "shared-infra", "label": "depends on"}
+  ]
+}

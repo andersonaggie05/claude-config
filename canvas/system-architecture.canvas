@@ -1,0 +1,40 @@
+{
+  "nodes": [
+    {"id": "hook-precommit", "type": "text", "text": "pre-commit", "x": 0, "y": 0, "width": 250, "height": 60},
+    {"id": "hook-planreview", "type": "text", "text": "plan-review-gate", "x": 300, "y": 0, "width": 250, "height": 60},
+    {"id": "hook-taskcompletion", "type": "text", "text": "task-completion-gate", "x": 600, "y": 0, "width": 250, "height": 60},
+    {"id": "hook-retrospective", "type": "text", "text": "retrospective-gate", "x": 900, "y": 0, "width": 250, "height": 60},
+    {"id": "skill-workflow-protocol", "type": "text", "text": "workflow-protocol", "x": 200, "y": 150, "width": 500, "height": 100},
+    {"id": "mod-verification", "type": "text", "text": "verification", "x": 0, "y": 350, "width": 250, "height": 60},
+    {"id": "mod-architecture", "type": "text", "text": "architecture", "x": 300, "y": 350, "width": 250, "height": 60},
+    {"id": "mod-compliance-audit", "type": "text", "text": "compliance-audit", "x": 600, "y": 350, "width": 250, "height": 60},
+    {"id": "mod-security-review", "type": "text", "text": "security-review", "x": 0, "y": 450, "width": 250, "height": 60},
+    {"id": "mod-prioritization", "type": "text", "text": "prioritization", "x": 300, "y": 450, "width": 250, "height": 60},
+    {"id": "mod-completion-checklist", "type": "text", "text": "completion-checklist", "x": 600, "y": 450, "width": 250, "height": 60},
+    {"id": "domain-compliance-checks", "type": "text", "text": "compliance-checks", "x": 0, "y": 600, "width": 220, "height": 60},
+    {"id": "domain-multitenant", "type": "text", "text": "multi-tenant-patterns", "x": 250, "y": 600, "width": 220, "height": 60},
+    {"id": "domain-operator-qual", "type": "text", "text": "operator-qualification", "x": 500, "y": 600, "width": 220, "height": 60},
+    {"id": "domain-frontend-arch", "type": "text", "text": "frontend-architecture", "x": 750, "y": 600, "width": 220, "height": 60},
+    {"id": "domain-run-tests", "type": "text", "text": "run-tests", "x": 1000, "y": 600, "width": 220, "height": 60},
+    {"id": "infra-memory", "type": "text", "text": "Memory system", "x": 200, "y": 800, "width": 250, "height": 60},
+    {"id": "infra-hermes", "type": "text", "text": "Hermes-bridge", "x": 600, "y": 800, "width": 250, "height": 60}
+  ],
+  "edges": [
+    {"id": "e-hookpre-wf", "fromNode": "hook-precommit", "toNode": "skill-workflow-protocol", "label": "enforces"},
+    {"id": "e-hookplan-wf", "fromNode": "hook-planreview", "toNode": "skill-workflow-protocol", "label": "enforces"},
+    {"id": "e-hooktask-wf", "fromNode": "hook-taskcompletion", "toNode": "skill-workflow-protocol", "label": "enforces"},
+    {"id": "e-hookretro-wf", "fromNode": "hook-retrospective", "toNode": "skill-workflow-protocol", "label": "enforces"},
+    {"id": "e-wf-verification", "fromNode": "skill-workflow-protocol", "toNode": "mod-verification", "label": "composes"},
+    {"id": "e-wf-architecture", "fromNode": "skill-workflow-protocol", "toNode": "mod-architecture", "label": "composes"},
+    {"id": "e-wf-compliance", "fromNode": "skill-workflow-protocol", "toNode": "mod-compliance-audit", "label": "composes"},
+    {"id": "e-wf-security", "fromNode": "skill-workflow-protocol", "toNode": "mod-security-review", "label": "composes"},
+    {"id": "e-wf-prioritization", "fromNode": "skill-workflow-protocol", "toNode": "mod-prioritization", "label": "composes"},
+    {"id": "e-wf-checklist", "fromNode": "skill-workflow-protocol", "toNode": "mod-completion-checklist", "label": "composes"},
+    {"id": "e-compliance-domain", "fromNode": "mod-compliance-audit", "toNode": "domain-compliance-checks", "label": "informs"},
+    {"id": "e-architecture-multitenant", "fromNode": "mod-architecture", "toNode": "domain-multitenant", "label": "informs"},
+    {"id": "e-architecture-frontend", "fromNode": "mod-architecture", "toNode": "domain-frontend-arch", "label": "informs"},
+    {"id": "e-compliance-operatorqual", "fromNode": "mod-compliance-audit", "toNode": "domain-operator-qual", "label": "informs"},
+    {"id": "e-verification-runtests", "fromNode": "mod-verification", "toNode": "domain-run-tests", "label": "informs"},
+    {"id": "e-wf-memory", "fromNode": "skill-workflow-protocol", "toNode": "infra-memory", "label": "retrospective updates"}
+  ]
+}

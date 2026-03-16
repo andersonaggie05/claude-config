@@ -1,0 +1,29 @@
+{
+  "nodes": [
+    {"id": "director", "type": "text", "text": "Director", "x": 0, "y": 120, "width": 200, "height": 80},
+    {"id": "mod-1", "type": "text", "text": "verification", "x": 300, "y": 0, "width": 250, "height": 50},
+    {"id": "mod-2", "type": "text", "text": "architecture", "x": 300, "y": 60, "width": 250, "height": 50},
+    {"id": "mod-3", "type": "text", "text": "compliance-audit", "x": 300, "y": 120, "width": 250, "height": 50},
+    {"id": "mod-4", "type": "text", "text": "security-review", "x": 300, "y": 180, "width": 250, "height": 50},
+    {"id": "mod-5", "type": "text", "text": "prioritization", "x": 300, "y": 240, "width": 250, "height": 50},
+    {"id": "mod-6", "type": "text", "text": "completion-checklist", "x": 300, "y": 300, "width": 250, "height": 50},
+    {"id": "agent", "type": "text", "text": "Agent", "x": 650, "y": 120, "width": 200, "height": 80},
+    {"id": "deliverable", "type": "text", "text": "Deliverable", "x": 950, "y": 120, "width": 200, "height": 80}
+  ],
+  "edges": [
+    {"id": "e-dir-mod1", "fromNode": "director", "toNode": "mod-1", "label": "selects"},
+    {"id": "e-dir-mod2", "fromNode": "director", "toNode": "mod-2", "label": "selects"},
+    {"id": "e-dir-mod3", "fromNode": "director", "toNode": "mod-3", "label": "selects"},
+    {"id": "e-dir-mod4", "fromNode": "director", "toNode": "mod-4", "label": "selects"},
+    {"id": "e-dir-mod5", "fromNode": "director", "toNode": "mod-5", "label": "selects"},
+    {"id": "e-dir-mod6", "fromNode": "director", "toNode": "mod-6", "label": "selects"},
+    {"id": "e-mod1-agent", "fromNode": "mod-1", "toNode": "agent", "label": "injected"},
+    {"id": "e-mod2-agent", "fromNode": "mod-2", "toNode": "agent", "label": "injected"},
+    {"id": "e-mod3-agent", "fromNode": "mod-3", "toNode": "agent", "label": "injected"},
+    {"id": "e-mod4-agent", "fromNode": "mod-4", "toNode": "agent", "label": "injected"},
+    {"id": "e-mod5-agent", "fromNode": "mod-5", "toNode": "agent", "label": "injected"},
+    {"id": "e-mod6-agent", "fromNode": "mod-6", "toNode": "agent", "label": "injected"},
+    {"id": "e-agent-deliverable", "fromNode": "agent", "toNode": "deliverable", "label": "produces"},
+    {"id": "e-deliverable-director", "fromNode": "deliverable", "toNode": "director", "label": "reviewed by"}
+  ]
+}

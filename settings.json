@@ -1,0 +1,116 @@
+{
+  "enabledPlugins": {
+    "github@claude-plugins-official": true,
+    "frontend-design@claude-plugins-official": true,
+    "context7@claude-plugins-official": true,
+    "superpowers@claude-plugins-official": true,
+    "code-simplifier@claude-plugins-official": true,
+    "ralph-loop@claude-plugins-official": true,
+    "code-review@claude-plugins-official": true,
+    "feature-dev@claude-plugins-official": true,
+    "playwright@claude-plugins-official": true,
+    "claude-code-setup@claude-plugins-official": true,
+    "commit-commands@claude-plugins-official": true,
+    "claude-md-management@claude-plugins-official": true,
+    "typescript-lsp@claude-plugins-official": true,
+    "security-guidance@claude-plugins-official": true,
+    "figma@claude-plugins-official": true,
+    "pr-review-toolkit@claude-plugins-official": true,
+    "pyright-lsp@claude-plugins-official": true,
+    "greptile@claude-plugins-official": true,
+    "skill-creator@claude-plugins-official": true,
+    "playground@claude-plugins-official": true,
+    "claude-api@anthropic-agent-skills": true,
+    "document-skills@anthropic-agent-skills": true,
+    "example-skills@anthropic-agent-skills": true,
+    "firecrawl@claude-plugins-official": true,
+    "coderabbit@claude-plugins-official": true,
+    "scientific-skills@claude-scientific-skills": true
+  },
+  "extraKnownMarketplaces": {
+    "anthropic-agent-skills": {
+      "source": {
+        "source": "git",
+        "url": "https://github.com/anthropics/skills.git"
+      }
+    },
+    "claude-scientific-skills": {
+      "source": {
+        "source": "git",
+        "url": "https://github.com/K-Dense-AI/claude-scientific-skills.git"
+      }
+    }
+  },
+  "effortLevel": "high",
+  "autoUpdatesChannel": "latest",
+  "hooks": {
+    "SessionEnd": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python C:/Users/Anderfail/.claude/hermes-bridge/hooks/session-end.py",
+            "timeout": 30000
+          }
+        ]
+      }
+    ],
+    "PreCompact": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python C:/Users/Anderfail/.claude/hermes-bridge/hooks/pre-compact.py",
+            "timeout": 10000
+          }
+        ]
+      }
+    ],
+    "SessionStart": [
+      {
+        "matcher": "compact",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python C:/Users/Anderfail/.claude/hermes-bridge/hooks/session-start-compact.py",
+            "timeout": 5000
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "ExitPlanMode",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python C:/Users/Anderfail/.claude/hooks/plan-review-gate.py",
+            "timeout": 10000
+          }
+        ]
+      },
+      {
+        "matcher": "TaskUpdate",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python C:/Users/Anderfail/.claude/hooks/task-completion-gate.py",
+            "timeout": 5000
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "TaskUpdate",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python C:/Users/Anderfail/.claude/hooks/retrospective-gate.py",
+            "timeout": 10000
+          }
+        ]
+      }
+    ]
+  }
+}

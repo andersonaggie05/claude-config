@@ -1,0 +1,49 @@
+# Backup archives (large)
+backup/
+backups/
+
+# Hermes-bridge data (SQLite DB, logs — keep hooks/scripts)
+hermes-bridge/data/
+
+# Plugin cache (managed by Claude Code)
+plugins/
+
+# Session transcripts, task state, and subagent metadata (ephemeral)
+projects/*/tasks/
+projects/*/*.jsonl
+projects/*/tool-results/
+projects/*/[0-9a-f]*/
+
+# Plans (ephemeral session artifacts)
+plans/
+
+# Local settings (may contain sensitive paths)
+settings.local.json
+settings.local.json.bak
+
+# Claude Code internals (ephemeral)
+statsig/
+.git-hierarchical-config
+todos/
+cache/
+debug/
+file-history/
+history.jsonl
+ide/
+paste-cache/
+sessions/
+shell-snapshots/
+stats-cache.json
+tasks/
+security_warnings_state_*.json
+
+# Python caches
+__pycache__/
+.pytest_cache/
+.ruff_cache/
+
+# Credentials (sensitive)
+.credentials.json
+
+# Editor backups
+*.bak
