@@ -1,0 +1,72 @@
+name: CI
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+
+jobs:
+  lint-python:
+    name: Ruff lint (Python)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - run: pip install ruff
+
+      - name: Ruff check — hooks
+        run: ruff check hooks/*.py
+
+      - name: Ruff check — hermes-bridge
+        run: ruff check hermes-bridge/
+
+  lint-shell:
+    name: ShellCheck (Bash)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: ShellCheck — pre-commit hook
+        run: shellcheck hooks/pre-commit
+
+      - name: ShellCheck — vault-health
+        run: shellcheck scripts/vault-health.sh
+
+  validate-json:
+    name: JSON validation
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Validate all tracked JSON files
+        run: |
+          failed=0
+          for f in $(git ls-files '*.json'); do
+            if ! python3 -c "import json, sys; json.load(open(sys.argv[1]))" "$f" 2>/dev/null; then
+              echo "INVALID JSON: $f"
+              failed=1
+            fi
+          done
+          if [ "$failed" -eq 1 ]; then
+            exit 1
+          fi
+          echo "All JSON files valid."
+
+      - name: Validate Obsidian Canvas files
+        run: |
+          failed=0
+          for f in $(git ls-files '*.canvas'); do
+            if ! python3 -c "import json, sys; json.load(open(sys.argv[1]))" "$f" 2>/dev/null; then
+              echo "INVALID CANVAS: $f"
+              failed=1
+            fi
+          done
+          if [ "$failed" -eq 1 ]; then
+            exit 1
+          fi
+          echo "All canvas files valid."
