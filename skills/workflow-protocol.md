@@ -15,7 +15,7 @@ These six rules govern ALL task execution. They are the highest-priority content
 
 4. **Compose, don't assume.** Every dispatched agent receives its knowledge modules explicitly listed in the dispatch prompt. Never assume an agent "knows" something because a previous agent knew it. The director (the main conversation when coordinating a team — see Phase 2) must consult `~/.claude/modules/README.md` for the composition mapping and include every module the agent will need. If an agent lacks a critical module, it will make incorrect assumptions. If an agent receives irrelevant modules, it wastes context window on noise. Both are failures — compose deliberately.
 
-5. **Never declare done without proof.** Every task completion must include quoted evidence: test output with pass/fail counts, linter output showing clean or listing specific errors fixed, prettier verification for frontend files. The phrase "tests pass" without pasted output is never acceptable. The phrase "lint is clean" without pasted output is never acceptable. If you cannot produce the evidence, the task is not complete. This rule applies to every agent, every task, every time — no exceptions for "simple" changes.
+5. **Never declare done without proof.** Every task completion must include quoted evidence: test output with pass/fail counts, linter output showing clean or listing specific errors fixed, prettier verification for frontend files. Evidence means pasted summary output from redirected logs (see Output Discipline in completion-checklist module). The phrase "tests pass" without summary output is never acceptable. The phrase "lint is clean" without summary output is never acceptable. If you cannot produce the evidence, the task is not complete. This rule applies to every agent, every task, every time — no exceptions for "simple" changes.
 
 6. **Retrospect every plan.** After completing any planned task, run the mandatory 3-layer retrospective: work review (what happened), process review (did the process work), and system evolution (should the system change). This is not optional, not deferrable, and not skippable for "straightforward" plans. The retrospective is where the system learns. Skipping it means repeating mistakes.
 
@@ -44,17 +44,18 @@ This checklist is MANDATORY for every task, every agent, every time. No exceptio
 
 ### Evidence Format
 
-When reporting completion, include this exact structure with real output pasted in:
+When reporting completion, include this exact structure with summary output from redirected logs:
 
 ```
-Tests: [X passed, Y failed] (paste output)
-Lint: [clean / N errors] (paste output)
-Prettier: [formatted / N files]
-Mission match: [yes/no — explain if no]
-Secrets: [clean]
+Tests: [X passed, Y failed] (from tail of log)
+Lint: [clean / N errors] (from grep count)
+Prettier: [formatted / N files need formatting]
+Mission match: [yes/no -- explain if no]
+Secrets: [clean -- stat-only diff reviewed]
+No regressions: [existing tests still pass -- from tail of log]
 ```
 
-This format is non-negotiable. It allows the director (or the user) to verify completion at a glance without re-running tools. If any field shows a failure, the task is not complete — fix the issue and re-run the checklist.
+This format is non-negotiable. It allows the director (or the user) to verify completion at a glance without re-running tools. If any field shows a failure, the task is not complete — fix the issue and re-run the checklist. The completion-checklist module is the source of truth for this format.
 
 ## Phase 1: Assessment & Planning
 
@@ -120,6 +121,58 @@ When a task is assessed as single-agent (whether trivial or planned), the main c
 
 When a task is assessed as needing a context team, the main conversation becomes the director. The director coordinates but does NOT write code — all implementation is done by dispatched agents.
 
+### File-Level Scoping
+
+When dispatching agents, scope boundaries are file-level, not directory-level.
+
+Instead of: "You own src/alerts/"
+Write: "You modify these files and no others:
+  - src/alerts/models.py
+  - src/alerts/serializers.py
+  - src/alerts/tests/test_models.py"
+
+The director determines the file list by:
+1. Reading the plan's checkable items
+2. Identifying which files each item touches (use grep/search if unsure)
+3. Assigning files to agents based on context isolation boundaries
+4. Including relevant test files in the same agent's scope
+
+If an agent discovers it needs to modify a file outside its scope, it reports this to the director rather than making the change. The director reassigns scope or handles the cross-cutting change.
+
+### Git Branch Checkpointing
+
+Before dispatching each agent, the director records the current branch and creates a named branch:
+
+```bash
+working_branch=$(git branch --show-current)
+# Save to hermes-bridge so it survives compaction
+checkpoint_save(summary="pre-dispatch", key_decisions=["working_branch: $working_branch", "assigned_files: <file-list>"])
+git checkout -B task/<task-tag>/<agent-role>
+```
+
+Examples:
+```bash
+git checkout -B task/new-alert-type/backend
+git checkout -B task/new-alert-type/frontend
+```
+
+Agent works on its branch. After the agent completes:
+- If acceptance criteria pass: director merges to the working branch
+  ```bash
+  git checkout $working_branch
+  git merge task/<tag>/<role>
+  ```
+- If acceptance criteria fail: director checks out the working branch, leaving the failed branch intact for debugging:
+  ```bash
+  git checkout $working_branch
+  ```
+
+The working branch name and assigned file list are persisted in hermes-bridge checkpoint (not just shell variables) so they survive context compaction. If the director loses context, it recovers via `checkpoint_restore()`.
+
+Failed branches are not deleted. They serve as forensic evidence for the retrospective -- what went wrong and why.
+
+Continue using hermes-bridge `checkpoint_save`/`checkpoint_restore` for conversation state and coordination context. Git handles code state.
+
 **Agent dispatch protocol — for each context-scoped agent, the director must:**
 
 1. **Define a one-sentence mission** that clearly states what the agent must deliver. The mission must be specific enough that the agent can evaluate its own success. Bad: "Handle the backend." Good: "Implement the compliance check API endpoint at /api/v1/checks/ with GET (list) and POST (create) methods, returning JSON matching the ComplianceCheckSerializer schema."
@@ -178,7 +231,7 @@ Checkpoint schema:
       "agent_id": "abc123",
       "mission": "Implement backend compliance check",
       "modules": ["compliance-audit", "verification", "completion-checklist"],
-      "scope": "apps/compliance/ and apps/operators/signals.py",
+      "scope": ["apps/compliance/models.py", "apps/compliance/serializers.py", "apps/compliance/tests/test_models.py"],
       "acceptance_criteria": "New check passes, existing tests pass, ruff clean",
       "status": "in_flight",
       "retry_count": 0
@@ -229,6 +282,8 @@ Focus: did the workflow protocol serve this task well.
 
 Focus: should the system itself change based on what we learned.
 
+**Important:** Every retrospective entry written to the decision journal must include `[retrospective]` in its heading. This marker is used by the meta-review cadence counter.
+
 **Always items (run every retrospective):**
 
 - **Memory:** Did this task reveal new feedback worth recording, new anti-patterns to avoid, or new navigation entries for the codebase? If yes, propose additions to the appropriate memory files.
@@ -246,6 +301,45 @@ Focus: should the system itself change based on what we learned.
 - **Canvas update:** If structural changes to the codebase were detected (new apps, new services, changed dependencies), regenerate the system-architecture.canvas to reflect the current state.
 
 **Exception handling:** A catastrophic failure or system incident triggers ALL items — both always and periodic — regardless of where the task falls in the retrospective cadence. System incidents demand full audit.
+
+**Evolution Testing:**
+After generating proposals, classify each as testable or not testable (see `~/.claude/evolution/run-evolution.md` for classification guide).
+
+For testable proposals:
+- Offer to run the evolution experiment loop before presenting for approval. Frame it as: "I have a proposal to [X]. I can test this against [test task] and measure [metrics] before you decide. Want me to run the experiment?"
+- If the user agrees, read `~/.claude/evolution/run-evolution.md` and follow the protocol.
+- Present results with the proposal: the diff, the metrics, and a recommendation.
+
+For non-testable proposals:
+- Present as normal: the proposal, the rationale, and request approval.
+
+The user always has final say. The evolution loop provides evidence, not authority.
+
+**Meta-Review (every 5th retrospective):**
+Check the decision journal: count entries with `[retrospective]` since the last `[meta-review]` entry. If 5+, run this review.
+
+Evaluate the workflow-protocol skill itself:
+- Did any of the Six Rules cause unnecessary friction? (Check: hook_block_count trending up without quality gains)
+- Did any rule fail to prevent a problem it was designed to prevent? (Check: rework_needed on tasks where the rule was active)
+- Were there trivial/planned threshold misclassifications?
+- Did file-level scoping help or hinder? (Check: discovery_efficiency, scope_adherence across recent tasks)
+- Is redirect-and-grep capturing enough evidence? (Check: rework_needed on verification failures)
+- Are any modules consistently composed but rarely useful?
+- Are any test tasks in the evolution library no longer representative?
+
+Testable proposals from this review go through the evolution framework. Non-testable proposals presented directly.
+
+Record findings in the decision journal with tag `[meta-review]`.
+
+**Evolution Framework Review (every 10th experiment):**
+Check `~/.claude/evolution/evolution-log.md`: count entries since the last `[framework-review]` entry. If 10+, run this review. This is human review only -- no experiment loop.
+
+- Are test tasks still discriminating? Retire tasks that always produce identical metrics regardless of proposal.
+- Are automated metrics capturing what matters? If human-evaluated metrics consistently disagree with automated ones, the automated metrics may be wrong.
+- Is baseline.json stale? If 3+ accepted changes since last baseline update, re-run all test tasks.
+- Are declined proposals clustering around a theme? If so, consider a fundamental redesign rather than incremental proposals.
+
+Record findings in evolution-log.md with tag `[framework-review]`.
 
 ### Handling Outcomes
 

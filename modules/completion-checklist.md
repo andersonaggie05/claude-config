@@ -24,15 +24,60 @@ This checklist is MANDATORY for every task, every agent, every time. No exceptio
 - [ ] **No secrets**: Review the diff. No API keys, passwords, .env content, or credentials.
 - [ ] **No regressions**: If you modified existing code, verify existing tests still pass.
 
+## Output Discipline
+
+Never dump raw CLI output into context. Always redirect to a temp file and extract only the summary.
+
+Agents in team dispatch run sequentially under the director. If worktree-based parallel execution is adopted in the future, temp files must be namespaced per-agent (e.g., `/tmp/cc_test_<role>.log`).
+
+### Commands
+
+Tests (Python):
+```bash
+pytest tests/ > /tmp/cc_test.log 2>&1
+tail -n 3 /tmp/cc_test.log
+```
+
+Tests (JS/TS):
+```bash
+npx vitest run > /tmp/cc_test.log 2>&1
+tail -n 3 /tmp/cc_test.log
+```
+
+Lint (Python):
+```bash
+ruff check . > /tmp/cc_lint.log 2>&1
+grep -cE "(error|warning)" /tmp/cc_lint.log || echo "0 issues"
+```
+
+Lint (JS/TS):
+```bash
+npx eslint . > /tmp/cc_lint.log 2>&1
+tail -n 3 /tmp/cc_lint.log
+```
+
+Prettier (frontend only):
+```bash
+npx prettier --check "src/**/*.{ts,tsx}" > /tmp/cc_prettier.log 2>&1
+tail -n 1 /tmp/cc_prettier.log
+```
+
+Secrets check:
+```bash
+git diff --cached --stat
+```
+(stat only -- never full diff in context)
+
 ## Evidence Format
 
-When reporting completion, include:
+When reporting completion, include this exact structure with summary output from redirected logs:
 ```
-Tests: [X passed, Y failed] (paste output)
-Lint: [clean / N errors] (paste output)
-Prettier: [formatted / N files]
-Mission match: [yes/no — explain if no]
-Secrets: [clean]
+Tests: [X passed, Y failed] (from tail of log)
+Lint: [clean / N errors] (from grep count)
+Prettier: [formatted / N files need formatting]
+Mission match: [yes/no -- explain if no]
+Secrets: [clean -- stat-only diff reviewed]
+No regressions: [existing tests still pass -- from tail of log]
 ```
 
 ## Connections

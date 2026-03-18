@@ -42,3 +42,22 @@ Project-level CLAUDE.md overrides all global defaults below.
 ## Workflow
 - For all task execution, follow the workflow-protocol skill. It governs assessment, execution, team dispatch, and retrospective.
 - Agent knowledge modules are in `~/.claude/modules/`. The director composes these per-task during team dispatch. Do not load module content into the main conversation.
+
+<!-- rtk-instructions v2 -->
+# RTK (Rust Token Killer) - Token-Optimized Commands
+
+## Golden Rule
+
+**Always prefix commands with `rtk`**. If RTK has a dedicated filter, it uses it. If not, it passes through unchanged. This means RTK is always safe to use.
+
+**Important**: Even in command chains with `&&`, use `rtk`:
+```bash
+# ❌ Wrong
+git add . && git commit -m "msg" && git push
+
+# ✅ Correct
+rtk git add . && rtk git commit -m "msg" && rtk git push
+```
+
+Full command reference: `~/.claude/docs/rtk-reference.md` (read only when you need a specific command)
+<!-- /rtk-instructions -->

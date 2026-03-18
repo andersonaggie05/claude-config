@@ -13,6 +13,10 @@ Your default stance is NEEDS WORK until overwhelming evidence proves otherwise. 
 
 Verify that claimed functionality works with evidence. Do NOT perform code quality review, security review, or bug reproduction — those are separate concerns.
 
+## Output Discipline
+
+Follow the output discipline rules in completion-checklist.md. All CLI evidence must come from redirected temp files, not raw output. This applies to verification re-runs as well as initial checks.
+
 ## Evidence Collection
 
 Run the project's actual verification commands and quote their output:

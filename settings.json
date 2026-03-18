@@ -1,48 +1,4 @@
 {
-  "enabledPlugins": {
-    "github@claude-plugins-official": true,
-    "frontend-design@claude-plugins-official": true,
-    "context7@claude-plugins-official": true,
-    "superpowers@claude-plugins-official": true,
-    "code-simplifier@claude-plugins-official": true,
-    "ralph-loop@claude-plugins-official": true,
-    "code-review@claude-plugins-official": true,
-    "feature-dev@claude-plugins-official": true,
-    "playwright@claude-plugins-official": true,
-    "claude-code-setup@claude-plugins-official": true,
-    "commit-commands@claude-plugins-official": true,
-    "claude-md-management@claude-plugins-official": true,
-    "typescript-lsp@claude-plugins-official": true,
-    "security-guidance@claude-plugins-official": true,
-    "figma@claude-plugins-official": true,
-    "pr-review-toolkit@claude-plugins-official": true,
-    "pyright-lsp@claude-plugins-official": true,
-    "greptile@claude-plugins-official": true,
-    "skill-creator@claude-plugins-official": true,
-    "playground@claude-plugins-official": true,
-    "claude-api@anthropic-agent-skills": true,
-    "document-skills@anthropic-agent-skills": true,
-    "example-skills@anthropic-agent-skills": true,
-    "firecrawl@claude-plugins-official": true,
-    "coderabbit@claude-plugins-official": true,
-    "scientific-skills@claude-scientific-skills": true
-  },
-  "extraKnownMarketplaces": {
-    "anthropic-agent-skills": {
-      "source": {
-        "source": "git",
-        "url": "https://github.com/anthropics/skills.git"
-      }
-    },
-    "claude-scientific-skills": {
-      "source": {
-        "source": "git",
-        "url": "https://github.com/K-Dense-AI/claude-scientific-skills.git"
-      }
-    }
-  },
-  "effortLevel": "high",
-  "autoUpdatesChannel": "latest",
   "hooks": {
     "SessionEnd": [
       {
@@ -50,6 +6,15 @@
           {
             "type": "command",
             "command": "python C:/Users/Anderfail/.claude/hermes-bridge/hooks/session-end.py",
+            "timeout": 30000
+          }
+        ]
+      },
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 C:/Users/Anderfail/.claude/plugins/cache/alexgreensh-token-optimizer/token-optimizer/2.6.0/skills/token-optimizer/scripts/measure.py collect --quiet && python3 C:/Users/Anderfail/.claude/plugins/cache/alexgreensh-token-optimizer/token-optimizer/2.6.0/skills/token-optimizer/scripts/measure.py dashboard --quiet",
             "timeout": 30000
           }
         ]
@@ -111,6 +76,88 @@
           }
         ]
       }
+    ],
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 'C:\\Users\\Anderfail\\.claude\\plugins\\cache\\alexgreensh-token-optimizer\\token-optimizer\\2.6.0\\skills\\token-optimizer\\scripts\\measure.py' quality-cache --quiet"
+          }
+        ]
+      }
+    ]
+  },
+  "statusLine": {
+    "type": "command",
+    "command": "npx -y ccstatusline@latest",
+    "padding": 0
+  },
+  "enabledPlugins": {
+    "github@claude-plugins-official": false,
+    "frontend-design@claude-plugins-official": true,
+    "context7@claude-plugins-official": true,
+    "superpowers@claude-plugins-official": true,
+    "code-simplifier@claude-plugins-official": true,
+    "ralph-loop@claude-plugins-official": true,
+    "code-review@claude-plugins-official": true,
+    "feature-dev@claude-plugins-official": true,
+    "playwright@claude-plugins-official": true,
+    "claude-code-setup@claude-plugins-official": true,
+    "commit-commands@claude-plugins-official": true,
+    "claude-md-management@claude-plugins-official": true,
+    "typescript-lsp@claude-plugins-official": true,
+    "security-guidance@claude-plugins-official": true,
+    "figma@claude-plugins-official": false,
+    "pr-review-toolkit@claude-plugins-official": true,
+    "pyright-lsp@claude-plugins-official": true,
+    "greptile@claude-plugins-official": false,
+    "skill-creator@claude-plugins-official": true,
+    "playground@claude-plugins-official": true,
+    "claude-api@anthropic-agent-skills": true,
+    "document-skills@anthropic-agent-skills": true,
+    "example-skills@anthropic-agent-skills": true,
+    "firecrawl@claude-plugins-official": true,
+    "coderabbit@claude-plugins-official": true,
+    "scientific-skills@claude-scientific-skills": true,
+    "token-optimizer@alexgreensh-token-optimizer": true
+  },
+  "extraKnownMarketplaces": {
+    "anthropic-agent-skills": {
+      "source": {
+        "source": "git",
+        "url": "https://github.com/anthropics/skills.git"
+      }
+    },
+    "claude-scientific-skills": {
+      "source": {
+        "source": "git",
+        "url": "https://github.com/K-Dense-AI/claude-scientific-skills.git"
+      }
+    },
+    "alexgreensh-token-optimizer": {
+      "source": {
+        "source": "github",
+        "repo": "alexgreensh/token-optimizer"
+      }
+    }
+  },
+  "effortLevel": "high",
+  "autoUpdatesChannel": "latest",
+  "env": {
+    "MAX_MCP_OUTPUT_TOKENS": "25000",
+    "BASH_MAX_OUTPUT_LENGTH": "50000"
+  },
+  "permissions": {
+    "deny": [
+      "Read(~/.ssh/**)",
+      "Read(~/.gnupg/**)",
+      "Read(**/.env)",
+      "Read(**/.env.*)",
+      "Read(**/credentials.json)",
+      "Read(**/node_modules/**)",
+      "Read(**/__pycache__/**)",
+      "Read(**/.git/objects/**)"
     ]
   }
 }

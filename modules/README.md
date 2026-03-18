@@ -10,16 +10,18 @@ Modules are composable units of expertise injected into agent prompts by the dir
 
 ## Composition Mapping
 
-| Task involves... | Include modules... |
-|---|---|
-| Any agent (always) | [[completion-checklist]] |
-| Backend implementation | [[verification]] |
-| Frontend implementation | [[verification]] |
-| Compliance feature | [[compliance-audit]] |
-| Architecture decision | [[architecture]] |
-| Security-sensitive change | [[security-review]] |
-| Multi-tenant change | [[security-review]] (tenant isolation section) |
-| Prioritization needed | [[prioritization]] |
+| Task involves... | Include modules... | Also specify... |
+|---|---|---|
+| Any agent (always) | [[completion-checklist]] | Exact file list to modify |
+| Backend implementation | [[verification]] | Exact file list to modify |
+| Frontend implementation | [[verification]] | Exact file list to modify |
+| Compliance feature | [[compliance-audit]] | Exact file list to modify |
+| Architecture decision | [[architecture]] | Exact file list to modify |
+| Security-sensitive change | [[security-review]] | Exact file list to modify |
+| Multi-tenant change | [[security-review]] (tenant isolation section) | Exact file list to modify |
+| Prioritization needed | [[prioritization]] | Exact file list to modify |
+
+The "Also specify" column applies to every row. The file list comes from the director's plan analysis (see File-Level Scoping in workflow-protocol.md).
 
 ## Module Inventory
 
