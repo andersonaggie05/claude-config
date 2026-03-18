@@ -19,7 +19,7 @@
 
 ## Roadmap
 - [[roadmap_appendix_k]] — Appendix K status: Sub-projects 1-2 done, Sub-project 3 (PWA) next
-- [[roadmap_qaqc]] — QAQC V2 Overhaul: Releases 1-3 done, Release 4 (Polish) next
+- [[roadmap_qaqc]] — QAQC V2 Overhaul COMPLETE: all 4 releases merged, 439 tests
 
 ## Decision Journals
 - Appendix K: `appendix_k/docs/decisions/DECISIONS.md` (16 architectural decisions)
