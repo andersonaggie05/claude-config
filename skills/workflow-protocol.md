@@ -9,7 +9,7 @@ These six rules govern ALL task execution. They are the highest-priority content
 
 1. **Plan non-trivial work.** Any task with 3 or more steps, any architectural decision, any multi-file change → enter plan mode. Write a plan with checkable items before writing any code. Trivial tasks (single file edit, quick lookup, fewer than 3 steps) may execute directly, but still require the completion checklist. When in doubt, plan — the cost of over-planning is a few minutes of thought; the cost of under-planning is rework, missed edge cases, and broken builds.
 
-2. **Review every plan.** Before calling ExitPlanMode, dispatch a Plan review agent. The review must check for: factual errors in the plan, phantom work items that reference nonexistent code or APIs, missing dependencies between steps, thin margins on complex steps, and unrealistic scope estimates. Incorporate all issues from the review into the plan before presenting it to the user. A plan that has not been reviewed is not a plan — it is a guess.
+2. **Review every plan.** Before calling ExitPlanMode, dispatch a Plan review agent. The review must check for: factual errors in the plan, phantom work items that reference nonexistent code or APIs, missing dependencies between steps, thin margins on complex steps, and unrealistic scope estimates. Incorporate all issues from the review into the plan before presenting it to the user. A plan that has not been reviewed is not a plan — it is a guess. **Planning-time context gathering:** When writing test code in plans, read the existing test helpers/fixtures first to verify constructor signatures, parameter names, and available kwargs. Do not write test code referencing helpers you have not read — the plan reviewer will catch it, but the review iteration is wasted time. The plan writer has the context; use it.
 
 3. **Split by context, not role.** When deciding whether to use multiple agents, ask "what context does this agent need?" not "what role does this agent play?" A "backend agent" and "testing agent" working on the same Django app is a role split — both need the same models, signals, and views, so splitting them creates handoff risk for zero benefit. A backend agent and a frontend agent working on different sides of an API contract is a context split — each has genuinely isolated context and can work independently. The unit of splitting is the context boundary, never the job title.
 
@@ -68,6 +68,8 @@ Evaluate the task against these criteria:
 - **Trivial** (execute directly): Single file edit, quick lookup, fewer than 3 steps, no architectural decisions, no ambiguity about approach. Examples: fixing a typo, adding a log statement, looking up a function signature, renaming a variable. Even trivial tasks require the completion checklist — tests must pass, lint must be clean.
 
 - **Non-trivial** (enter plan mode): 3 or more steps, any architectural decision (new model, new signal, new API endpoint, state machine change), multi-file changes with dependencies between them, any task where the approach is not immediately obvious. Enter plan mode, write a plan with checkable items, dispatch the Plan review agent to check for factual errors and missing dependencies, then present the reviewed plan for user approval.
+
+**Size-gated ceremony:** Non-trivial tasks with 4 or fewer independent steps do not require the full brainstorm → plan → multi-iteration review → subagent execution pipeline. For small releases (2-3 tasks), write a concise plan, run a single review pass, and execute inline or with a single subagent batch. Reserve the full pipeline for releases with 5+ tasks or cross-cutting architectural changes. The decision is step count and coupling, not importance — a 3-step task touching critical code still gets a plan, just a lighter execution path.
 
 **Ambiguity rule:** When uncertain whether a task is trivial or non-trivial, default to non-trivial. The cost of over-planning is a few minutes spent thinking through the approach. The cost of under-planning is missed edge cases, rework, broken integrations, and lost user trust. Over-planning has a low ceiling of waste; under-planning has an unbounded ceiling of damage.
 
@@ -192,6 +194,12 @@ Continue using hermes-bridge `checkpoint_save`/`checkpoint_restore` for conversa
 - Review each agent's output against acceptance criteria. Do not rubber-stamp — verify the evidence in the completion report.
 - If an agent's output has conflicts with another agent's work, the director resolves the conflict and re-dispatches the affected agent with updated context explaining what changed and why.
 - If an agent's output is insufficient (missing deliverables, failing tests, incomplete evidence), provide specific feedback and re-dispatch. Maximum 3 retries per agent — if the agent cannot succeed after 3 attempts, escalate to the user with a summary of what was attempted and what failed.
+
+**Review agent dispatch rules:**
+
+- **Use foreground for final/blocking code reviews.** Background review agents that block the workflow (can't finish the branch without results) provide no benefit over foreground — and risk timeout-induced re-dispatch. Reserve background for truly non-blocking work.
+- **Never dispatch duplicate review agents.** If a background review is pending and context compacts, the first agent's result will still arrive. Do not dispatch a second review for the same diff — wait for the first, or cancel it explicitly before re-dispatching.
+- **Skip re-review for mechanical one-line fixes.** When a review finds issues and the fix is a single-line mechanical change (adding an escape character, adding a missing CSS class), the fix does not require a full re-review cycle. Commit and move on. Reserve re-review for fixes that involve judgment or multi-line changes.
 
 ### Peer Communication (Director-Mediated)
 
