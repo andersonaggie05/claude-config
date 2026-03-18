@@ -95,6 +95,8 @@ The threshold is context isolation, not step count. A 5-step all-backend task st
 
 Splitting agents that share context is actively harmful. It creates handoff overhead, risks inconsistency when one agent changes something the other depends on, and forces the director to mediate communications that would have been implicit in a single agent's working memory. Never split for parallelism alone — split only for genuine context isolation.
 
+**Parallel implementation subagents are safe when file scopes are disjoint.** The subagent-driven-development skill says "don't dispatch multiple implementation subagents in parallel (conflicts)" — this applies when tasks touch overlapping files. When tasks have zero file overlap (e.g., one modifies Python files, another creates a new HTML file), parallel dispatch is both safe and faster. The test is file-level: if `git diff` from each agent would never touch the same file, dispatch in parallel.
+
 ### Calibration Examples
 
 These five examples establish the decision boundary. Study the reasoning column — it shows the context isolation test applied to real scenarios.
