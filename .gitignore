@@ -35,6 +35,7 @@ sessions/
 shell-snapshots/
 stats-cache.json
 tasks/
+!evolution/tasks/
 security_warnings_state_*.json
 
 # Python caches
