@@ -72,6 +72,10 @@ Vault structure: `inbox/`, `claims/`, `frameworks/`, `projects/`, `maps/`, `sour
 - `/vault-reindex` — regenerate qmd embeddings after vault changes
 - `/vault-health` — check vault staleness, orphans, index freshness
 
+**Auto-extraction:** `session-extract.py` hook fires every SessionEnd, scans transcript for retrospectives, decisions, and corrections, creates draft inbox notes in `~/vault/inbox/`. Triage via `/vault-review`.
+
+**Note lifecycle:** `inbox` → `active` → `superseded`. Conflict detection during `/vault-review` triage prevents contradictory knowledge from accumulating.
+
 **Session orientation:** `session-orient.py` hook fires every SessionStart, queries hermes-bridge + qmd, injects combined context. No Obsidian app required at runtime.
 
 <!-- rtk-instructions v2 -->
