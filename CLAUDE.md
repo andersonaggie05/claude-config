@@ -51,6 +51,29 @@ Project-level CLAUDE.md overrides all global defaults below.
 ## Workflow
 - **Intent check at phase boundaries:** At the end of each release/phase, re-read the user's original request and verify the completed work actually addresses their stated problems — not just the plan's literal instructions. If a gap is found, flag it immediately rather than continuing to the next phase.
 
+## Knowledge Graph (Obsidian Vault)
+
+Three-layer persistence architecture:
+- **hermes-bridge** — session memory (ephemeral, cross-session search/checkpoints)
+- **Memory files** — Claude preferences and feedback (medium-lived)
+- **Obsidian vault** (`~/vault/`) — long-lived knowledge graph with atomic notes
+
+Vault structure: `inbox/`, `claims/`, `frameworks/`, `projects/`, `maps/`, `sources/`, `templates/`
+- Prose-as-title naming for claims/frameworks (e.g., "mechanical enforcement beats advisory rules.md")
+- YAML frontmatter + wikilinks on all notes
+
+**MCP servers for vault access:**
+- **qmd** — hybrid BM25+vector+reranking search, structured queries by path/tag/glob
+- **Smart Connections** — semantic search using Obsidian plugin embeddings (additive, not critical)
+
+**Key tools:**
+- `brain-ingest.py` (`~/.claude/scripts/`) — CLI to ingest YouTube/PDF/text into `~/vault/inbox/`
+- `/vault-ingest` — extract claims/frameworks from inbox notes into structured vault notes
+- `/vault-reindex` — regenerate qmd embeddings after vault changes
+- `/vault-health` — check vault staleness, orphans, index freshness
+
+**Session orientation:** `session-orient.py` hook fires every SessionStart, queries hermes-bridge + qmd, injects combined context. No Obsidian app required at runtime.
+
 <!-- rtk-instructions v2 -->
 # RTK (Rust Token Killer) - Token-Optimized Commands
 

@@ -63,7 +63,7 @@ Follows the project's existing decision journal convention:
 **Rationale:** [Why this option over the alternatives?]
 ```
 
-Append new ADR entries to `docs/decisions/DECISIONS.md`.
+Append new ADR entries to `docs/decisions/DECISIONS.md`. If the decision represents a reusable architectural pattern (not project-specific), also create a vault note in `~/vault/frameworks/` with prose-as-title naming and [[wikilinks]] to related vault notes.
 
 ## Output Format
 

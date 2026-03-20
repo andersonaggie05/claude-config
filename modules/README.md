@@ -23,6 +23,10 @@ Modules are composable units of expertise injected into agent prompts by the dir
 
 The "Also specify" column applies to every row. The file list comes from the director's plan analysis (see File-Level Scoping in workflow-protocol.md).
 
+## Vault Knowledge
+
+Before dispatching agents, the director may search the vault via qmd MCP for relevant prior decisions, frameworks, or patterns. This is not a module — it is ad-hoc context retrieved at dispatch time. Include relevant vault excerpts in the agent's prompt when they provide useful domain knowledge not captured in modules.
+
 ## Module Inventory
 
 | Module | Source | Tags |

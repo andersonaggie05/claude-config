@@ -61,6 +61,10 @@ This format is non-negotiable. It allows the director (or the user) to verify co
 
 Every task begins with assessment. Before writing any code, before dispatching any agent, answer two questions in order.
 
+### Session Orientation
+
+The session-orient hook automatically injects context from hermes-bridge (recent sessions) and qmd (relevant vault knowledge) at session start. For mid-session task switches, manually query the vault: use qmd MCP tools to search for relevant claims, frameworks, and prior decisions before assessing the new task.
+
 ### Decision 1 — Does This Need a Plan?
 
 Evaluate the task against these criteria:
@@ -221,7 +225,8 @@ Suggested sequences for common task types. These are starting points, not mandat
 | Feature (single-context) | Design the approach → Implement and test in a single agent, pulling in the architecture module if structural decisions are needed |
 | Feature (multi-context) | Design the approach and define API contracts → Dispatch backend agent and frontend agent in parallel → Integration review once both deliver |
 | Compliance change | Audit the impact across existing checks and signals → Implement with the compliance-audit module → Run full verification suite |
-| Architecture decision | Evaluate options using the architecture module → Write an ADR documenting the decision and rationale → Implement the chosen approach |
+| Architecture decision | Evaluate options using the architecture module → Write an ADR documenting the decision and rationale → If the decision is a reusable pattern, create a vault note in `~/vault/frameworks/` → Implement the chosen approach |
+| Knowledge ingestion | `brain-ingest.py` fetches raw content into `~/vault/inbox/` → `/vault-ingest` extracts claims/frameworks → `qmd embed` updates search index |
 
 When a task does not cleanly fit a pattern, the director constructs a custom sequence using the same principles: isolate context, compose modules, set acceptance criteria, verify with evidence.
 
@@ -298,6 +303,7 @@ Focus: should the system itself change based on what we learned.
 
 - **Memory:** Did this task reveal new feedback worth recording, new anti-patterns to avoid, or new navigation entries for the codebase? If yes, propose additions to the appropriate memory files.
 - **Decision journal:** Were any architectural decisions made that should be recorded in the project's decision journal? New models, new signal patterns, new API designs, changes to state machines — these all warrant ADR entries.
+- **Vault knowledge:** Did this task produce reusable knowledge — a new framework, a validated claim, a pattern worth capturing? If yes, create or update the appropriate note in `~/vault/` (claims/ for assertions, frameworks/ for methodologies, sources/ for references). Add [[wikilinks]] to related vault notes. Run `qmd embed` after vault changes.
 - **Kanban update:** Move completed cards to done. Add new improvement cards for any issues discovered during the retrospective — technical debt found, process gaps identified, module gaps noticed.
 - **Modules:** Did any agent lack needed knowledge that should be in a module? Did any agent receive a module full of irrelevant noise that should be trimmed? Propose specific module updates with rationale.
 
@@ -363,7 +369,9 @@ Record findings in evolution-log.md with tag `[framework-review]`.
 
 - **User correction received (any task, including trivial):** Any user correction triggers a lightweight retrospective even for trivial tasks. Ask: should this correction become a feedback memory so it is not repeated? Is this a repeat of a previous correction? If it is a repeat, escalate to a system incident — the system failed to learn from the first correction and needs a structural fix, not just a memory entry.
 
-## Hermes-Bridge Quick Reference
+## Persistence Quick Reference
+
+### Hermes-Bridge (Session Memory)
 
 These tools manage session context and inter-agent deliverables. Use them for checkpoint persistence and agent coordination.
 
@@ -373,3 +381,22 @@ These tools manage session context and inter-agent deliverables. Use them for ch
 - `deliverable_save(pipeline_id, agent_role, ...)` — save an agent's output as a deliverable that downstream agents or the director can consume
 - `deliverable_search(pipeline_id, for_consumer)` — retrieve a saved deliverable, typically used by the director to pass one agent's output to another or to review agent work
 - `session_index(session_id, jsonl_path)` — manually re-index a session transcript (rarely needed; used for repair or retroactive indexing)
+
+### Vault (qmd MCP — Knowledge Graph)
+
+These tools search and retrieve from the Obsidian vault (`~/vault/`). Use them for domain knowledge, prior decisions, and reusable patterns.
+
+- `qmd query` — search vault notes by keyword (hybrid BM25+vector+reranking)
+- `qmd get` — retrieve a specific vault note by path
+- `qmd multi_get` — retrieve multiple vault notes
+- `qmd status` — check index health and embedding freshness
+
+### Vault Skills
+
+- `/vault-ingest` — process documents into structured vault notes in `~/vault/inbox/`
+- `/vault-reindex` — rebuild qmd embeddings and verify wikilinks
+- `/vault-health` — full vault hygiene check (orphans, staleness, token budgets, qmd index)
+- `/vault-review` — triage inbox and review improvement proposals
+- `/vault-standup` — cross-project briefing including vault knowledge
+- `/vault-canvas` — generate system architecture visualizations in `~/vault/maps/`
+- `brain-ingest.py` — CLI to fetch YouTube/PDF/text into `~/vault/inbox/`
