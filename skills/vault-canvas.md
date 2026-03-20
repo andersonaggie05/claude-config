@@ -5,7 +5,7 @@ description: Generate or regenerate Obsidian Canvas mind maps for system visuali
 
 # /vault-canvas
 
-Generate .canvas files in Obsidian's JSON format.
+Generate .canvas files in Obsidian's JSON format. Output to ~/vault/maps/.
 
 ## Obsidian Canvas JSON Schema
 
@@ -43,6 +43,7 @@ Generate .canvas files in Obsidian's JSON format.
 ## Commands
 
 - `/vault-canvas system` — regenerate system-architecture.canvas (all hooks, modules, skills, memory)
+- `/vault-canvas system-with-vault` — regenerate full architecture canvas including vault layer (qmd, Obsidian, orient hook, ~/vault/ structure)
 - `/vault-canvas modules` — regenerate module-composition.canvas
 - `/vault-canvas projects` — regenerate project-dependencies.canvas
-- `/vault-canvas {topic}` — generate ad-hoc canvas in canvas/ad-hoc/
+- `/vault-canvas {topic}` — generate ad-hoc canvas in ~/vault/maps/ad-hoc/

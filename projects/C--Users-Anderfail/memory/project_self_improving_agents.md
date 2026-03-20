@@ -18,10 +18,14 @@ Self-improving agent ecosystem. Architecture overhauled 2026-03-16 to replace ad
   - `task-completion-gate`: blocks task completion if the completion checklist was not run
   - `retrospective-gate`: blocks session end if retrospective was not run
 - **Automatic 3-layer retrospective** — learning loop at session end: (1) work review (what was built, what broke), (2) process review (which hooks fired, which steps were skipped), (3) system evolution (skill proposals, module updates, memory updates).
-- **Obsidian vault integration** — knowledge management via canvas files, kanban boards, wikilinks, and tags. Vault at `~/.claude/vault/`.
+- **Obsidian vault** (`~/vault/`) — long-lived knowledge graph with atomic notes, prose-as-title naming, wikilinks. Folders: inbox, claims, frameworks, projects, maps, sources, templates. Browsable in Obsidian GUI.
+- **qmd MCP** — hybrid search (BM25 + vector + reranking) and structured queries over the vault. Registered at user scope. Uses `node .../qmd.js mcp`.
+- **Smart Connections MCP** — semantic search using Obsidian plugin embeddings (`.smart-env/`). Tools: semantic_search, find_related, get_context_blocks. Community-maintained (additive, not critical).
+- **Session orientation hook** (`~/.claude/hooks/session-orient.py`) — fires every SessionStart (no matcher). Queries hermes-bridge + qmd, injects combined context. Graceful degradation on failure.
+- **brain-ingest** (`~/.claude/scripts/brain-ingest.py`) — CLI tool to fetch YouTube transcripts, PDFs, text files into `~/vault/inbox/`. Two-stage: brain-ingest fetches raw, then /vault-ingest extracts knowledge.
 
 **Hermes-bridge** (cross-session search and checkpointing, unchanged):
-- MCP server with 4 tools: `session_search`, `session_index`, `checkpoint_save`, `checkpoint_restore`
+- MCP server with 6 tools: `session_search`, `session_index`, `checkpoint_save`, `checkpoint_restore`, `deliverable_save`, `deliverable_search`
 - SQLite DB: `~/.claude/hermes-bridge/data/bridge.db`
 - Hooks: SessionEnd (auto-index), PreCompact (checkpoint), SessionStart[compact] (inject context)
 

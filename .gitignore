@@ -48,3 +48,13 @@ __pycache__/
 
 # Editor backups
 *.bak
+*.orig
+
+# Token optimizer (generated checkpoints/caches)
+token-optimizer/
+
+# MCP auth cache (auto-generated)
+mcp-needs-auth-cache.json
+
+# Token-optimizer backups
+_backups/

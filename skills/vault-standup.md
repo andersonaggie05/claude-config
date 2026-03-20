@@ -12,7 +12,8 @@ Scan project state and deliver a briefing.
 1. Read all roadmap memory files (roadmap_appendix_k.md, roadmap_qaqc.md)
 2. Search recent sessions via `session_search("recent work")` for last 3 sessions
 3. Read Kanban boards (appendix-k-board.md, qaqc-board.md, system-health-board.md)
-4. Summarize: what's done, what's in progress, what's blocked, what's next
+4. Query vault: use qmd MCP `query` tool to search for recent vault notes related to active projects
+5. Summarize: what's done, what's in progress, what's blocked, what's next
 
 ## Output Format
 
@@ -30,6 +31,11 @@ STANDUP — {date}
 - Recent: {last session's work}
 - Next: {next planned work}
 - Blockers: {any}
+
+## Knowledge Graph
+- Recent vault notes: {list of notes added/modified in last 7 days from qmd query}
+- Relevant connections: {vault notes linked to active project work}
+- Inbox pending: {count of untriaged inbox notes}
 
 ## System Health
 - Pending improvements: {count from system-health-board}

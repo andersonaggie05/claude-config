@@ -33,6 +33,15 @@
     ],
     "SessionStart": [
       {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python C:/Users/Anderfail/.claude/hooks/session-orient.py",
+            "timeout": 15000
+          }
+        ]
+      },
+      {
         "matcher": "compact",
         "hooks": [
           {

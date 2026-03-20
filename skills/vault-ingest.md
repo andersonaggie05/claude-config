@@ -1,11 +1,11 @@
 ---
 name: vault-ingest
-description: Process PDF/docx documents into clean Markdown vault entries
+description: Process PDF/docx documents into clean Markdown notes in ~/vault/inbox/
 ---
 
 # /vault-ingest
 
-Convert documents into vault-compatible Markdown.
+Convert documents into vault-compatible Markdown notes.
 
 ## Process
 
@@ -16,16 +16,15 @@ Convert documents into vault-compatible Markdown.
    - Requirements or constraints
    - Action items or deadlines
    - Technical specifications
-4. Write clean Markdown to vault-docs/processed/ with frontmatter:
+4. Write clean Markdown to ~/vault/inbox/ with frontmatter:
    ```markdown
    ---
-   name: {document title}
-   description: {one-line summary}
-   type: processed-document
-   source: {original filename}
-   date-processed: {YYYY-MM-DD}
+   created: {YYYY-MM-DD}
+   source: {original filename or URL}
+   status: inbox
+   tags: [{relevant tags}]
    ---
    ```
-5. Add [[backlinks]] to related modules, skills, decisions
-6. Archive original to vault-docs/raw/ (if local file)
+5. Add [[wikilinks]] to related vault notes (claims, frameworks, sources, projects, etc.)
+6. Run `qmd embed` via Bash to update the search index
 7. Principle: Agent always works with processed Markdown, never raw documents

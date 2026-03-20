@@ -1,72 +1,3 @@
-# Global Claude Code Preferences
-
-## Git
-- Always create new commits (never amend unless asked)
-- Commit messages: concise, imperative mood, explain "why" not "what"
-
-## Code Style
-- Keep changes minimal — only modify what's requested
-- No unnecessary comments, docstrings, or type annotations on untouched code
-- Prefer editing existing files over creating new ones
-- Type hints encouraged for Python
-- Never edit lock files or generated build artifacts directly
-
-## Communication
-- Be concise, no emojis unless asked
-- When referencing code, use `file_path:line_number` format
-
-Project-level CLAUDE.md overrides all global defaults below.
-
-## Context Management
-- Suggest /clear when the user switches to an unrelated task
-- Proactively suggest committing at natural milestones before long operations
-
-## Testing
-- **Verification order:** `tsc --noEmit` → ESLint/ruff → test suite. Type errors are cheapest to catch; don't burn a full test run to discover them.
-- Run lint and tests on changed files before marking work complete
-- Write tests for new logic; don't skip tests to save time
-- Python: prefer pytest; JS/TS: prefer vitest
-- Never modify a test just to force it to pass — if a test reveals a real bug, fix the site, not the test
-- Tests that enforce implementation style (e.g., "no innerHTML") are fragile — prefer testing behavior over implementation constraints. When a legitimate pattern change breaks a style test, update the test to accommodate the new pattern rather than avoiding the pattern
-
-## Linting & Formatting
-- Always auto-format files you edited (not entire directories)
-- Python: prefer ruff (check --fix + format)
-- JS/TS: Prettier enforced by pre-commit hook; eslint for linting
-- When starting a feature branch, run full lint suite first and commit formatting fixes as the first commit — separates cleanup noise from feature work in the PR diff
-
-## Security
-- Never commit .env files, credentials, API keys, or secrets
-- Validate inputs at system boundaries (user input, external APIs)
-
-## Planning
-- Plan review enforced by plan-review-gate hook (blocks ExitPlanMode without review)
-- Never lower test coverage thresholds or quality gates to fix CI — write tests instead
-- Plans must read actual model/schema files before writing code snippets — never rely on memory or spec assumptions for field names, required args, or FK relationships
-- When dispatching implementer subagents, include actual model class definitions in the prompt context
-- Diagnosis steps in plans should frame root causes as hypotheses to investigate, not assertions of fact — "investigate what the number is" not "the number is X"
-- When dispatching subagents to modify files, include any tests that assert invariants about those files (e.g., "no innerHTML usage") so agents don't unknowingly violate them
-- Every plan must include a **Requirements Traceability** section that maps each stated user problem/request to the specific plan step that solves it. If any user requirement has no corresponding solution in the plan, flag it before starting execution. This is enforced by the plan-review-gate hook.
-
-## Workflow
-- **Intent check at phase boundaries:** At the end of each release/phase, re-read the user's original request and verify the completed work actually addresses their stated problems — not just the plan's literal instructions. If a gap is found, flag it immediately rather than continuing to the next phase.
-
-<!-- rtk-instructions v2 -->
-# RTK (Rust Token Killer) - Token-Optimized Commands
-
-## Golden Rule
-
-**Always prefix commands with `rtk`**. If RTK has a dedicated filter, it uses it. If not, it passes through unchanged. This means RTK is always safe to use.
-
-**Important**: Even in command chains with `&&`, use `rtk`:
-```bash
-# ❌ Wrong
-git add . && git commit -m "msg" && git push
-
-# ✅ Correct
-rtk git add . && rtk git commit -m "msg" && rtk git push
-```
-
 ## RTK Commands by Workflow
 
 ### Build & Compile (80-90% savings)
@@ -183,4 +114,3 @@ rtk init --global       # Add RTK to ~/.claude/CLAUDE.md
 | Network | curl, wget | 65-70% |
 
 Overall average: **60-90% token reduction** on common development operations.
-<!-- /rtk-instructions -->
